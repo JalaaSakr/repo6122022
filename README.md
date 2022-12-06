@@ -25,7 +25,7 @@ It hides the details of how exactly the data is saved or retrieved from the unde
 
 
 ## Difficulties
-Blazor is a new and open-source web framework
+Blazor is a new  web framework
 
 ## To get over Difficulties
 i am following courses to understand blazor skills
