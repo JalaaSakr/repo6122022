@@ -1,0 +1,111 @@
+﻿@page "/products"
+@attribute [Authorize]
+@using CatalogLastApp.Data;
+
+@inject CatalogLastApp.Data.IProductRepository productRepository;
+@inject CatalogLastApp.Data.ICategoryRepository categoryRepository;
+<h3>Products</h3>
+
+<div>
+    <EditForm OnValidSubmit="@HandleValidSubmit" EditContext="_editContext">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+    <label>Name</label>
+    <input type="text" @bind-value="@product.Product_Name" />
+        
+    <br />
+    <br />
+    <label>Category</label>
+
+        <InputSelect id="category" @bind-Value="@product.Product_CategoryID">
+            @foreach (var cat in Categories)
+            {
+                <option value="@cat.Category_ID">@cat.Category_Name</option>
+            }
+        </InputSelect>
+    <br />
+    <br />
+    <button class="btn btn-success" @onclick="@(x=>SaveProduct())">Save</button>
+        
+    </EditForm>
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Product Category</th>
+                <th>Actions</th>
+            </tr>
+
+        </thead>
+        <tbody>
+
+            @if (Products is not null)
+            {
+                foreach (Product p in Products)
+                {
+                    <tr>
+                        <td>@p.Product_ID</td>
+                    <td>@p.Product_Name</td>
+                    <td>@p.Product_CategoryID</td>
+                    <td>
+                        <button class="btn-primary" @onclick="@(x=>SetProductValue(@p))">Edit</button>
+                        <button class="btn-danger" @onclick="@(x=>DeleteProduct(@p.Product_ID))">Delete</button>
+                    </td>
+                </tr>
+            }
+            }
+        </tbody>
+    </table>
+</div>
+
+
+
+@code {
+    Product product = new Product();
+    List<Product> Products;
+    List<Category> Categories = new List<Category>();
+    private EditContext _editContext;
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(product);
+        _editContext.OnFieldChanged += HandleFieldChanged;
+        LoadProducts();
+    }
+    private void HandleFieldChanged(object sender, FieldChangedEventArgs e)
+    {
+        _editContext.Validate();
+        StateHasChanged();
+    }
+    protected void HandleValidSubmit()
+    {
+        
+    }
+    private void LoadProducts()
+    {
+        Products = new List<Product>();
+        Products = productRepository.GetAll();
+        Categories=categoryRepository.GetAll();
+    }
+
+    private void GetProduct(int productid)
+    {
+        product = productRepository.Get(productid);
+    }
+    private void DeleteProduct(int productid)
+    {
+        string message = productRepository.Delete(productid);
+        LoadProducts();
+    }
+    private void SaveProduct()
+    {
+        product = productRepository.Save(product);
+        LoadProducts();
+    }
+
+    private void SetProductValue(Product _product)
+    {
+        product = _product;
+    }
+
+}

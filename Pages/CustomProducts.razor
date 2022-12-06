@@ -1,0 +1,61 @@
+﻿@page "/viewcustom"
+@using CatalogLastApp.Data;
+
+@inject CatalogLastApp.Data.IProductRepository productRepository;
+@inject CatalogLastApp.Data.ICategoryRepository categoryRepository;
+<div>
+    <EditForm Model="@category">
+    <label>Category</label>
+    <InputSelect id="category" @bind-Value="@category.Category_ID">
+        @foreach (var cat in Categories)
+        {
+            <option value="@cat.Category_ID">@cat.Category_Name</option>
+        }
+    </InputSelect>
+    </EditForm>
+    <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                
+               
+            @if (Products is not null)
+            {foreach (Product p in Products)
+                {
+                    if (p.Product_CategoryID.Equals(category.Category_ID))
+                    {
+                <tr>
+                    <td>@p.Product_Name</td>
+                </tr>
+                    }
+                }
+            }
+            </tbody>
+        </table>
+   
+</div>
+
+@code {
+    List<Category> Categories = new List<Category>();
+    List<Product> Products = new List<Product>();
+    Category category = new Category();
+    
+  
+    protected override void OnInitialized()
+    {
+
+        LoadProducts();
+    }
+
+    private void LoadProducts()
+    {
+        Products = new List<Product>();
+        Products = productRepository.GetAll();
+        Categories = categoryRepository.GetAll();
+        //CustomList = Products.FindAll(x => x.Product_CategoryID.Equals(product.Product_CategoryID));
+    }
+}

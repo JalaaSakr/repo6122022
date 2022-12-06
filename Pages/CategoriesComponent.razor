@@ -1,0 +1,97 @@
+﻿@page "/categories"
+@attribute [Authorize]
+@using CatalogLastApp.Data;
+
+@inject CatalogLastApp.Data.ICategoryRepository categoryRepository;
+<h3>Categories</h3>
+
+<div>
+    <EditForm EditContext="_editContext" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+    <label>Name</label>
+    <input type="text" @bind-value="@category.Category_Name" />
+    <br />
+    <br />
+   
+    <br />
+    <br />
+    <button class="btn btn-success" @onclick="@(x=>SaveCategory())">Save</button>
+    </EditForm>
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Category ID</th>
+                <th>Category Name</th>
+                <th>Actions</th>
+            </tr>
+
+        </thead>
+        <tbody>
+            @if (Categories is not null)
+            {
+                foreach (Category c in Categories)
+                {
+                    <tr>
+                        <td>@c.Category_ID</td>
+                    <td>@c.Category_Name</td>
+
+                    <td>
+                        <button class="btn-primary" @onclick="@(x=>SetCategoryValue(@c))">Edit</button>
+                        <button class="btn-danger" @onclick="@(x=>DeleteCategory(@c.Category_ID))">Delete</button>
+                    </td>
+                </tr>
+            }
+            }
+        </tbody>
+    </table>
+</div>
+
+
+
+@code {
+    Category category = new Category();
+    List<Category> Categories = new List<Category>();
+    private EditContext _editContext;
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(category);
+        _editContext.OnFieldChanged += HandleFieldChanged;
+        LoadCategories();
+    }
+     private void HandleFieldChanged(object sender, FieldChangedEventArgs e)
+    {
+        _editContext.Validate();
+        StateHasChanged();
+    }
+    private void HandleValidSubmit()
+    {
+        
+    }
+    private void LoadCategories()
+    {
+        Categories = new List<Category>();
+        Categories = categoryRepository.GetAll();
+    }
+
+    private void GetCategory(int categoryid)
+    {
+        category = categoryRepository.Get(categoryid);
+    }
+    private void DeleteCategory(int categoryid)
+    {
+        string message = categoryRepository.Delete(categoryid);
+        LoadCategories();
+    }
+    private void SaveCategory()
+    {
+        category = categoryRepository.Save(category);
+        LoadCategories();
+    }
+
+    private void SetCategoryValue(Category _category)
+    {
+        category = _category;
+    }
+
+}
